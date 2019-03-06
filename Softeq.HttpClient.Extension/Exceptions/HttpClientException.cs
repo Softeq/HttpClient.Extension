@@ -10,7 +10,7 @@ namespace Softeq.HttpClient.Extension.Exceptions
 {
     public class HttpClientException : Exception
     {
-        public List<ErrorDto> Errors { get; set; }
+        public List<ErrorDto> Errors { get; set; } = new List<ErrorDto>();
         public HttpStatusCode StatusCode { get; set; }
 
         public HttpClientException(string message) : base(message)
