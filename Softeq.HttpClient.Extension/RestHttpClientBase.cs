@@ -50,9 +50,9 @@ namespace Softeq.HttpClient.Extension
                 return null;
             }
 
-            var stringResponse = await response.Content.ReadAsStreamAsync();
+            var streamResponse = await response.Content.ReadAsStreamAsync();
 
-            return stringResponse;
+            return streamResponse;
         }
 
         public virtual async Task<T> SendAndDeserializeAsync<T>(BaseHttpRequest request)
