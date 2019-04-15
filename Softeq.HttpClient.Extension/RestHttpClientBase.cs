@@ -2,11 +2,11 @@
 // http://www.softeq.com
 
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Softeq.HttpClient.Extension.Exceptions;
 using Softeq.HttpClient.Extension.Models;
 using Softeq.HttpClient.Extension.Utility;
@@ -38,6 +38,19 @@ namespace Softeq.HttpClient.Extension
             }
 
             var stringResponse = await response.Content.ReadAsStringAsync();
+
+            return stringResponse;
+        }
+
+        public virtual async Task<Stream> SendAndGetResponseStreamAsync(BaseHttpRequest request)
+        {
+            var response = await SendAsyncImpl(request);
+            if (response == null)
+            {
+                return null;
+            }
+
+            var stringResponse = await response.Content.ReadAsStreamAsync();
 
             return stringResponse;
         }
