@@ -1,7 +1,17 @@
-## Steps to include Polly in project using Curcuit Breaker pattern:
-1. Have your project grab the `ASPNET Core 2.1` packages from `nuget`. You'll typically need the `AspNetCore` metapackage, and the extension package `Microsoft.Extensions.Http.Polly`.
+![Azure DevOps builds](https://dev.azure.com/eugenypetlakh/HttpClient.Extension/_apis/build/status/Softeq.HttpClient.Extension?branchName=master)
+![NuGet](https://img.shields.io/nuget/v/Softeq.HttpClient.Extension.svg)
 
-2. Configure a client with *Polly* policies, in `Startup`. Insert this two private methods:
+## HttpClient.Extension
+This is package to extend standard **HttpClient** for send/receive messages.
+
+## Dependencies
+- Microsoft.AspNetCore
+- Microsoft.Extensions.Http.Polly
+
+## Configuration
+
+Configure a client with **Polly** policies, in `Startup`. Insert this two private methods:
+
 ```csharp
 private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
 {
@@ -19,10 +29,41 @@ private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
 }
 ```
 
-3. In your standard `Startup.ConfigureServices(...)` method, start by configuring a named client as below:
+In public method `ConfigureServices` in `Startup.cs` file where **HTTPClient** is implementing add:
 ```csharp
 services.AddHttpClient("ProfileHttpClient")
     .AddPolicyHandler(GetRetryPolicy())
     .AddPolicyHandler(GetCircuitBreakerPolicy());
-where ProfileHttpClient - your HTTP client implementation
 ```
+## Usage
+Declare **HTTPClient**
+
+```csharp
+_httpClient = new RestHttpClient(new TestHttpClientFactory());
+```
+Send and get response
+```csharp
+_httpClient.SendAndGetResponseAsync(request)
+```
+Send and deserialize
+```csharp
+_httpClient.SendAndDeserializeAsync<UsersList>(request)
+```
+
+## About
+
+This project is maintained by [Softeq Development Corp.](https://www.softeq.com/)
+We specialize in .NET core applications.
+
+ - [Facebook](https://web.facebook.com/Softeq.by/)
+ - [Instagram](https://www.instagram.com/softeq/)
+ - [Twitter](https://twitter.com/Softeq)
+ - [Vk](https://vk.com/club21079655)
+
+## Contributing
+
+We welcome any contributions.
+
+## License
+
+The Serilog extention project is available for free use, as described by the [LICENSE](/LICENSE) (MIT).
