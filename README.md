@@ -53,14 +53,15 @@ Declare **HTTPClient**
 _httpClient = new RestHttpClient(new TestHttpClientFactory());
 ```
 
-Create request, send it and get response
+Create request, send it
 ```csharp
 var request = new BadRequest();
 _httpClient.SendAndGetResponseAsync(request)
 ```
-Send and deserialize
+Create request, send it and deserialize response
 ```csharp
-_httpClient.SendAndDeserializeAsync<UsersList>(request)
+var request = new UsersListRequest();
+var result = await _httpClient.SendAndDeserializeAsync<UsersList>(request);
 ```
 
 ## About
