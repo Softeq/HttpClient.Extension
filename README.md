@@ -31,9 +31,20 @@ private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
 
 In public method `ConfigureServices` in `Startup.cs` file where **HTTPClient** is implementing add:
 ```csharp
-services.AddHttpClient("ProfileHttpClient")
-    .AddPolicyHandler(GetRetryPolicy())
-    .AddPolicyHandler(GetCircuitBreakerPolicy());
+private static IServiceCollection RegisterClientWithRetryPolicy<T>(IServiceCollection services, string clientName) where T : RestHttpClientBase
+	    {
+		    services.AddHttpClient(clientName)
+			    .AddTransientHttpErrorPolicy(GetRetryPolicy)
+			    .AddPolicyHandler(GetCircuitBreakerPolicy);
+
+		    services.AddTransient<T>(serviceProvider =>
+		    {
+			    var factory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+			    return (T)Activator.CreateInstance(typeof(T), factory);
+		    });
+
+		    return services;
+	    }
 ```
 ## Usage
 Declare **HTTPClient**
@@ -41,8 +52,10 @@ Declare **HTTPClient**
 ```csharp
 _httpClient = new RestHttpClient(new TestHttpClientFactory());
 ```
-Send and get response
+
+Create request, send it and get response
 ```csharp
+var request = new BadRequest();
 _httpClient.SendAndGetResponseAsync(request)
 ```
 Send and deserialize
@@ -66,4 +79,4 @@ We welcome any contributions.
 
 ## License
 
-The Serilog extention project is available for free use, as described by the [LICENSE](/LICENSE) (MIT).
+The **HttpClient.Extension** project is available for free use, as described by the [LICENSE](/LICENSE) (MIT).
