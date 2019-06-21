@@ -52,11 +52,33 @@ Declare **HTTPClient**
 ```csharp
 _httpClient = new RestHttpClient(new TestHttpClientFactory());
 ```
-
+Request implementation
+```csharp
+class BadRequest : BaseHttpRequest
+{
+    public override string EndpointUrl { get; } = "https://bad.siteurl";
+}
+```
 Create request, send it
 ```csharp
 var request = new BadRequest();
 _httpClient.SendAndGetResponseAsync(request)
+```
+Request implementation
+```csharp
+class UsersListRequest : BaseHttpRequest
+{
+    public UsersListRequest()
+    {
+    }
+
+    public UsersListRequest(string endpointUrl)
+    {
+        EndpointUrl = endpointUrl;
+    }
+
+    public override string EndpointUrl { get; } = "https://reqres.in/api/users?page=2";
+}
 ```
 Create request, send it and deserialize response
 ```csharp
