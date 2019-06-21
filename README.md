@@ -1,7 +1,17 @@
-## Steps to include Polly in project using Curcuit Breaker pattern:
-1. Have your project grab the `ASPNET Core 2.1` packages from `nuget`. You'll typically need the `AspNetCore` metapackage, and the extension package `Microsoft.Extensions.Http.Polly`.
+![Azure DevOps builds](https://dev.azure.com/eugenypetlakh/HttpClient.Extension/_apis/build/status/Softeq.HttpClient.Extension?branchName=master)
+![NuGet](https://img.shields.io/nuget/v/Softeq.HttpClient.Extension.svg)
 
-2. Configure a client with *Polly* policies, in `Startup`. Insert this two private methods:
+## HttpClient.Extension
+This is package to extend standard **HttpClient** for send/receive messages.
+
+## Dependencies
+- Microsoft.AspNetCore
+- Microsoft.Extensions.Http.Polly
+
+## Configuration
+
+Configure a client with **Polly** policies, in `Startup`. Insert this two private methods:
+
 ```csharp
 private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
 {
@@ -19,10 +29,77 @@ private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
 }
 ```
 
-3. In your standard `Startup.ConfigureServices(...)` method, start by configuring a named client as below:
+In public method `ConfigureServices` in `Startup.cs` file where **HTTPClient** is implementing add:
 ```csharp
-services.AddHttpClient("ProfileHttpClient")
-    .AddPolicyHandler(GetRetryPolicy())
-    .AddPolicyHandler(GetCircuitBreakerPolicy());
-where ProfileHttpClient - your HTTP client implementation
+private static IServiceCollection RegisterClientWithRetryPolicy<T>(IServiceCollection services, string clientName) where T : RestHttpClientBase
+	    {
+		    services.AddHttpClient(clientName)
+			    .AddTransientHttpErrorPolicy(GetRetryPolicy)
+			    .AddPolicyHandler(GetCircuitBreakerPolicy);
+
+		    services.AddTransient<T>(serviceProvider =>
+		    {
+			    var factory = serviceProvider.GetRequiredService<IHttpClientFactory>();
+			    return (T)Activator.CreateInstance(typeof(T), factory);
+		    });
+
+		    return services;
+	    }
 ```
+## Usage
+Declare **HTTPClient**
+
+```csharp
+_httpClient = new RestHttpClient(new TestHttpClientFactory());
+```
+Request implementation
+```csharp
+class BadRequest : BaseHttpRequest
+{
+    public override string EndpointUrl { get; } = "https://bad.siteurl";
+}
+```
+Create request, send it
+```csharp
+var request = new BadRequest();
+_httpClient.SendAndGetResponseAsync(request)
+```
+Request implementation
+```csharp
+class UsersListRequest : BaseHttpRequest
+{
+    public UsersListRequest()
+    {
+    }
+
+    public UsersListRequest(string endpointUrl)
+    {
+        EndpointUrl = endpointUrl;
+    }
+
+    public override string EndpointUrl { get; } = "https://reqres.in/api/users?page=2";
+}
+```
+Create request, send it and deserialize response
+```csharp
+var request = new UsersListRequest();
+var result = await _httpClient.SendAndDeserializeAsync<UsersList>(request);
+```
+
+## About
+
+This project is maintained by [Softeq Development Corp.](https://www.softeq.com/)
+We specialize in .NET core applications.
+
+ - [Facebook](https://web.facebook.com/Softeq.by/)
+ - [Instagram](https://www.instagram.com/softeq/)
+ - [Twitter](https://twitter.com/Softeq)
+ - [Vk](https://vk.com/club21079655)
+
+## Contributing
+
+We welcome any contributions.
+
+## License
+
+The **HttpClient.Extension** project is available for free use, as described by the [LICENSE](/LICENSE) (MIT).
